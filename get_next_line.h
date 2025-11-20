@@ -6,7 +6,7 @@
 /*   By: mpedraza <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/20 13:58:51 by mpedraza          #+#    #+#             */
-/*   Updated: 2025/11/20 14:35:15 by mpedraza         ###   ########.fr       */
+/*   Updated: 2025/11/20 18:26:27 by mpedraza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,5 +20,9 @@
 #  endif
 
 char	*get_next_line(int fd);
+void	*ft_memchr(const void *s, int c, size_t n)
+void	*ft_memcpy(void *dest, const void *src, size_t n)
+void	*ft_memset(void *s, int c, size_t n)
+void	*ft_calloc(size_t nmemb, size_t size)
 
 # endif
