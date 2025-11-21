@@ -6,7 +6,7 @@
 /*   By: mpedraza <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/20 13:58:51 by mpedraza          #+#    #+#             */
-/*   Updated: 2025/11/21 12:51:31 by mpedraza         ###   ########.fr       */
+/*   Updated: 2025/11/21 19:26:59 by mpedraza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@
 # include <unistd.h>
 
 # ifndef BUFFER_SIZE
-#  define BUFFER_SIZE 128
+#  define BUFFER_SIZE 10000000
 #  endif
 
 char	*get_next_line(int fd);
