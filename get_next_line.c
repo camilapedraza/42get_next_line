@@ -6,7 +6,7 @@
 /*   By: mpedraza <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/20 11:48:35 by mpedraza          #+#    #+#             */
-/*   Updated: 2025/11/20 18:39:42 by mpedraza         ###   ########.fr       */
+/*   Updated: 2025/11/21 14:29:43 by mpedraza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,44 +14,61 @@
 
 char	*get_next_line(int fd)
 {
-	static char		stash[SSIZE_MAX];
+	static char		stash[2048];
 	char			*buffer;
 	char			*newline;
-	static size_t	count;
+	static ssize_t	count;
 	// below are needed AFTER the while loop
 	char            *line;
-	size_t			read_bytes;
-	size_t			line_bytes;
-	size_t			stash_bytes;
+	ssize_t			read_bytes;
+	ssize_t			line_bytes;
+	ssize_t			stash_bytes;
 
 	buffer = malloc(BUFFER_SIZE);
 	if (!buffer)
 		return (NULL);
 	newline = NULL;
+	if (count > 0)
+	{
+		newline = ft_memchr(stash, '\n', count);
+		if (newline)
+		{
+			line_bytes = (newline - stash) + 1;
+			line = ft_calloc((line_bytes + 1), sizeof(char));
+			ft_memcpy(line, stash, line_bytes);
+			stash_bytes = count - line_bytes;
+			ft_memcpy(stash, stash + line_bytes, stash_bytes);
+			count = stash_bytes;
+			return (line);
+		}
+	}
 	while (!newline)
 	{
 		read_bytes = read(fd, buffer, BUFFER_SIZE);
 		if (read_bytes <= 0)
 			break;
-		newline = ft_memchr(buffer, '\n', bytes_read);
+		newline = ft_memchr(buffer, '\n', read_bytes);
 		if (!newline)
+		{
 			ft_memcpy(stash + count, buffer, read_bytes);
-		count =+ read_bytes;
+			count += read_bytes;
+		}
 	}
 	// NEW FUNCTION STARTING HERE?
-	if (bytes_read >= 0 && count > 0)
+	if (read_bytes >= 0 && count > 0)
 	{
 		line_bytes = 0;
-			if (newline)
-		line_bytes = newline - buffer + 1;
-		line = ft_calloc(count + line_bytes + 1);
-		ft_memcpy(line, stash, count);
+		if (newline)
+			line_bytes = (newline - buffer) + 1;
+		line = ft_calloc((count + line_bytes + 1), sizeof(char));
+		if (count > 0)
+			ft_memcpy(line, stash, count);
 		stash_bytes = 0;
-		if (bytes_read > 0)
+		if (read_bytes > 0)
 		{
 			ft_memcpy(line + count, buffer, line_bytes);
 			stash_bytes = read_bytes - line_bytes;
-			ft_memcpy(stash, buffer + line_bytes, stash_bytes);
+			ft_memcpy(stash + count, buffer + line_bytes, stash_bytes);
 		}
 		else
 			ft_memset(stash, 0, count);
