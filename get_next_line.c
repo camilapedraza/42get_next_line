@@ -3,111 +3,128 @@
 /*                                                        :::      ::::::::   */
 /*   get_next_line.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mpedraza <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: mpedraza <mpedraza@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/11/20 11:48:35 by mpedraza          #+#    #+#             */
-/*   Updated: 2025/11/21 21:32:24 by mpedraza         ###   ########.fr       */
+/*   Created: 2025/11/22 13:29:32 by mpedraza          #+#    #+#             */
+/*   Updated: 2025/11/24 22:11:14 by mpedraza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "get_next_line.h"
+# include "get_next_line.h"
+
 #include <stdio.h>
 
-char	*get_next_line(int fd)
+void	set_stash(struct s_stash *stash, ssize_t bytes)
 {
-	static char		stash[20000];
-	char			*buffer;
-	char			*newline;
-	static ssize_t	count;
-	char            *line;
-	// could move this to new functions
-	ssize_t			read_bytes;
-	ssize_t			line_bytes;
-	ssize_t			stash_bytes;
-	
-	if (fd < 0)
-		return (NULL);
-	buffer = malloc(BUFFER_SIZE);
-	if (!buffer)
-		return (NULL);
-	newline = NULL;
-	if (count)
+	stash->buffer_pos = stash->buffer;
+	stash->buffer_size = bytes;
+}
+
+ssize_t	read_file(int fd, struct s_stash *stash)
+{
+	ssize_t	read_bytes;
+
+	read_bytes = read(fd, stash->buffer, BUFFER_SIZE);
+	if (read_bytes == - 1)
+		return (read_bytes);
+	set_stash(stash, read_bytes);
+	return (read_bytes);
+}
+
+char *move_stash_to_line(char *orig, struct s_stash *stash, size_t line_size)
+{
+	char	*dest;
+	size_t	orig_len;
+	size_t	i;
+
+	orig_len = 0;
+	if (orig)
+		orig_len = ft_strlen(orig);
+	dest = ft_calloc((orig_len + line_size + 1), sizeof(char));
+	if (!dest)
 	{
-		newline = ft_memchr(stash, '\n', count);
-		if (newline)
+		free(orig);
+		return (NULL);
+	}
+	if (orig_len)
+		ft_memcpy(dest, orig, orig_len);
+	i = orig_len;
+	while (i < line_size)
+		dest[i++] = *(stash->buffer_pos++);
+	free(orig);
+	return (dest);
+}
+
+char	*build_line(int fd, struct s_stash *stash, char *line)
+{
+	char	*newline;
+	ssize_t	line_size;
+	ssize_t	read_bytes;
+
+	while (1)
+	{
+		if (stash->buffer_size > 0)
 		{
-			line_bytes = (newline - stash) + 1;
-			line = ft_calloc((line_bytes + 1), sizeof(char));
-			if (!line)
+			newline = ft_memchr(stash->buffer_pos, '\n', stash->buffer_size);
+			if (newline)
 			{
-				free(buffer);
-				return (NULL);
+				line_size = (newline - stash->buffer_pos) + 1;
+				stash->buffer_size -= line_size;
+				return(move_stash_to_line(line, stash, (size_t)line_size));
 			}
-			ft_memcpy(line, stash, line_bytes);
-			stash_bytes = count - line_bytes;
-			if (stash_bytes)
-				ft_memcpy(stash, stash + line_bytes, stash_bytes);
-			count = stash_bytes;
-			free(buffer);
+			line = move_stash_to_line(line, stash, stash->buffer_size);
+			if (!line)
+				return (NULL);
+		}
+		set_stash(stash, 0);
+		read_bytes = read_file(fd, stash);
+		if (read_bytes == -1 || (read_bytes == 0 && stash->buffer_size == 0))
+		{
+			free(line);
+			return(NULL);
+		}
+		if (read_bytes < BUFFER_SIZE)
+		{
+			line = move_stash_to_line(line, stash, stash->buffer_size);
+			set_stash(stash, 0);
 			return (line);
 		}
 	}
-	// check read for errors or end, otherwise read and stash until newline is found!
-	while (!newline)
-	{
-		read_bytes = read(fd, buffer, BUFFER_SIZE);
-		if (read_bytes == -1 || (read_bytes == 0 && count == 0))
-		{
-			count = 0;
-			free(buffer);
-			return (NULL);
-		}
-		if (read_bytes == 0)
-				break ;
-		newline = ft_memchr(buffer, '\n', read_bytes);
-		if (!newline)
-		{
-			ft_memcpy(stash + count, buffer, read_bytes);
-			count += read_bytes;
-		}
-	}
-	// NEW FUNCTION STARTING HERE
-	line_bytes = 0;
-	if (newline)
-		line_bytes = (newline - buffer) + 1;
-	line = ft_calloc((count + line_bytes + 1), sizeof(char));
-	if (!line)
-	{
-		free(buffer);
-		return (NULL);
-	}
-	if (count > 0)
-		ft_memcpy(line, stash, count);
-	if (newline)
-		ft_memcpy(line + count, buffer, line_bytes);
-	count = read_bytes - line_bytes;
-	if (count)
-		ft_memcpy(stash, buffer + line_bytes, count);
-	free(buffer);
-	return (line);
 }
-/*
-#include <stdio.h>
+
+char	*get_next_line(int fd)
+{
+	static struct	s_stash stash;
+	char			*line;
+
+	if (fd < 0 || BUFFER_SIZE <= 0)
+		return (NULL);
+	line = NULL;
+	if (stash.buffer_pos == NULL)
+		stash.buffer_pos = stash.buffer;
+	return(build_line(fd, &stash, line));
+}
+
+/*static int *p = NULL;
+if (!p)
+	p = (int *)malloc(sizeof(int));*/
+
+/* #include <stdio.h>
 #include <fcntl.h>
 
 int main(int ac, char **av)
 {
-    int file;
-	char	*read_line;
+	int file;
+	char *read_line;
 
-    if (ac == 2)
-    {
-        file = open(av[1], O_RDONLY);
-        if (file == -1)
-            write(STDERR_FILENO, "Cannot read file.\n", 18);
-        else
-        {
-            while (1) 
+	if (ac == 2)
+	{
+		file = open(av[1], O_RDONLY);
+		if (file == -1)
+			write(STDERR_FILENO, "Cannot read file.\n", 18);
+		else
+		{
+			while (1)
 			{
 				read_line = get_next_line(file);
 				if (read_line)
@@ -115,15 +132,16 @@ int main(int ac, char **av)
 				else
 				{
 					close(file);
-					break ;
+					break;
 				}
 			}
 			return (0);
-        }
-    }
-    else if (ac < 2)
-        write(STDERR_FILENO, "File name missing.\n", 19);
-    else
-        write(STDERR_FILENO, "Too many arguments.\n", 20);
-    return (1);
-}*/
+		}
+	}
+	else if (ac < 2)
+		write(STDERR_FILENO, "File name missing.\n", 19);
+	else
+		write(STDERR_FILENO, "Too many arguments.\n", 20);
+	return (1);
+}
+ */
