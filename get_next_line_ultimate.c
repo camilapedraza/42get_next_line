@@ -6,7 +6,7 @@
 /*   By: mpedraza <mpedraza@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/22 13:29:32 by mpedraza          #+#    #+#             */
-/*   Updated: 2025/11/22 14:04:31 by mpedraza         ###   ########.fr       */
+/*   Updated: 2025/11/24 12:30:59 by mpedraza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,11 @@ void	init_stash_state(struct s_stash_state *state)
 	// since it's static, is state->stash_len set to 0 automagically?
 }
 
+char	*read_line(int fd, struct s_stash_state *state, char *line)
+{
+	
+}
+
 char	*get_next_line(int fd)
 {
 	static struct	s_stash_state state;
@@ -25,7 +30,7 @@ char	*get_next_line(int fd)
 	int				*read_bytes;
 
 	init_stash_state(&state);
-
+	read_line(fd, &state, &line);
 
 	if (line)
 		return (line);
