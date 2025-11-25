@@ -6,7 +6,7 @@
 /*   By: mpedraza <mpedraza@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/25 01:24:57 by mpedraza          #+#    #+#             */
-/*   Updated: 2025/11/25 16:53:31 by mpedraza         ###   ########.fr       */
+/*   Updated: 2025/11/25 17:02:49 by mpedraza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,15 +91,16 @@ char	*get_next_line(int fd)
 		return (NULL);
 	if (fill_stash(fd, &stash, &buffer) < 0)
 	{
+		update_stash(&stash);
 		free(buffer);
 		return (NULL);
 	}
 	line = build_line(stash);
 	if (!line)
 	{
+		free(buffer);
 		free(stash);
 		stash = NULL;
-		free(buffer);
 		return (NULL);
 	}
 	update_stash(&stash);
