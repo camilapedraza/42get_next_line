@@ -5,67 +5,77 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: mpedraza <mpedraza@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/11/20 18:24:01 by mpedraza          #+#    #+#             */
-/*   Updated: 2025/11/24 20:33:51 by mpedraza         ###   ########.fr       */
+/*   Created: 2025/11/25 01:30:19 by mpedraza          #+#    #+#             */
+/*   Updated: 2025/11/25 02:55:15 by mpedraza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "get_next_line.h"
+# include "get_next_line.h"
 
-size_t ft_strlen(const char *s)
+size_t	ft_strlen(const char *s)
 {
-	size_t i;
+	size_t	i;
 
 	i = 0;
-	while (s[i])
+	while (s && s[i])
 		i++;
 	return (i);
 }
 
-void	*ft_memchr(const void *s, int c, size_t n)
+char	*ft_strchr(const char *s, int c)
 {
-	while (n--)
-		if (*(char *)(s++) == (char) c)
-			return ((char *)--s);
+	if (!s)
+		return (NULL);
+	while (*s)
+	{
+		if (*s == (unsigned char)c)
+			return ((char *)s);
+		s++;
+	}
+	if ((unsigned char)c == '\0')
+		return ((char *)s);
 	return (NULL);
 }
 
-void	*ft_memcpy(void *dest, const void *src, size_t n)
+char	*ft_strjoin(char const *s1, char const *s2)
 {
+	char	*dest;
+	size_t	len1;
+	size_t	len2;
 	size_t	i;
 
-	i = 0;
-	if (!dest && !src)
+	len1 = 0;
+	len2 = 0;
+	if (s1)
+		len1 = ft_strlen(s1);
+	if (s2)
+		len2 = ft_strlen(s2);
+	dest = malloc((len1 + len2 + 1));
+	if (!dest)
 		return (NULL);
-	while (i < n)
-	{
-		*((char *)(dest + i)) = *((char *)(src + i));
-		i++;
-	}
+	i = 0;
+	while (i < len1)
+		dest[i++] = *(s1++);
+	i = 0;
+	while (i < len2)
+		dest[len1 + i++] = *(s2++);
+	dest[len1 + len2] = '\0';
 	return (dest);
 }
 
-void	*ft_memset(void *s, int c, size_t n)
+char	*ft_strdup(const char *s)
 {
-	size_t	i;
+	char	*dup;
+	size_t	slen;
+	int		i;
 
+	slen = ft_strlen(s);
+	dup = malloc(slen + 1);
+	if (!dup)
+		return (NULL);
 	i = 0;
-	while (i < n)
-		*((char *)(s + i++)) = c;
-	return (s);
-}
-
-void	*ft_calloc(size_t nmemb, size_t size)
-{
-	void	*ptr;
-
-	if (nmemb == 0 || size == 0)
-		return (malloc(0));
-	if (size != 0 && nmemb > SIZE_MAX / size)
-		return (NULL);
-	ptr = malloc(nmemb * size);
-	if (!ptr)
-		return (NULL);
-	ft_memset(ptr, 0, nmemb * size);
-	return (ptr);
+	while (*s)
+		dup[i++] = *s++;
+	dup[i] = '\0';
+	return (dup);
 }

@@ -6,7 +6,7 @@
 /*   By: mpedraza <mpedraza@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/20 11:48:35 by mpedraza          #+#    #+#             */
-/*   Updated: 2025/11/24 23:01:53 by mpedraza         ###   ########.fr       */
+/*   Updated: 2025/11/25 00:31:00 by mpedraza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,7 +81,6 @@ char	*get_next_line(int fd)
 		if (newline)
 			return(assemble_from_stash(stash, &count, buffer, newline));
 	}
-
 	while (!newline)
 	{
 		read_bytes = read(fd, buffer, BUFFER_SIZE);
