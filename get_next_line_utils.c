@@ -6,21 +6,11 @@
 /*   By: mpedraza <mpedraza@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/20 18:24:01 by mpedraza          #+#    #+#             */
-/*   Updated: 2025/11/26 12:46:11 by mpedraza         ###   ########.fr       */
+/*   Updated: 2025/11/26 14:08:54 by mpedraza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
-
-size_t	ft_strlen(const char *s)
-{
-	size_t	i;
-
-	i = 0;
-	while (s[i])
-		i++;
-	return (i);
-}
 
 void	*ft_memchr(const void *s, int c, size_t n)
 {

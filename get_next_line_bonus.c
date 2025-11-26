@@ -6,11 +6,18 @@
 /*   By: mpedraza <mpedraza@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/25 01:24:57 by mpedraza          #+#    #+#             */
-/*   Updated: 2025/11/26 12:55:28 by mpedraza         ###   ########.fr       */
+/*   Updated: 2025/11/26 16:24:32 by mpedraza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line_bonus.h"
+
+static void	clean_stash(char **stash)
+{
+	if (*stash)
+		free(*stash);
+	*stash = NULL;
+}
 
 static void	update_stash(char **stash)
 {
@@ -78,28 +85,21 @@ static int	fill_stash(int fd, char **stash, char **buffer)
 
 char	*get_next_line(int fd)
 {
-	static char	*stash;
+	static char	*stash[__SHRT_MAX__];
 	char		*buffer;
 	char		*line;
 
-	if (fd < 0 || BUFFER_SIZE <= 0)
+	if (fd < 0 || fd > __SHRT_MAX__ || BUFFER_SIZE <= 0)
 		return (NULL);
 	buffer = malloc(BUFFER_SIZE + 1);
 	if (!buffer)
-		return (NULL);
-	if (fill_stash(fd, &stash, &buffer) < 0)
-	{
-		update_stash(&stash);
-		return (free(buffer), NULL);
-	}
-	line = build_line(stash);
+		return (clean_stash(&stash[fd]), NULL);
+	if (fill_stash(fd, &stash[fd], &buffer) < 0)
+		return (clean_stash(&stash[fd]), free(buffer), NULL);
+	line = build_line(stash[fd]);
 	if (!line)
-	{
-		free(stash);
-		stash = NULL;
-		return (free(buffer), NULL);
-	}
-	update_stash(&stash);
+		return (clean_stash(&stash[fd]), free(buffer), NULL);
+	update_stash(&stash[fd]);
 	free(buffer);
 	return (line);
 }

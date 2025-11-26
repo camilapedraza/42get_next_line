@@ -6,7 +6,7 @@
 /*   By: mpedraza <mpedraza@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/20 13:58:51 by mpedraza          #+#    #+#             */
-/*   Updated: 2025/11/26 12:51:45 by mpedraza         ###   ########.fr       */
+/*   Updated: 2025/11/26 14:53:07 by mpedraza         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,12 +16,13 @@
 # include <stdlib.h>
 # include <stdint.h>
 # include <unistd.h>
+# include <limits.h>
 
 # ifndef BUFFER_SIZE
-#  define BUFFER_SIZE 10000000
+#  define BUFFER_SIZE 4096
 # endif
 
-# define STASH_SIZE 20000
+# define STASH_SIZE INT16_MAX
 
 char	*get_next_line(int fd);
 void	*ft_memchr(const void *s, int c, size_t n);
